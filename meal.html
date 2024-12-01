@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Weekly Menu App</title>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7fc;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    header {
+      background-color: #3E497A;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 20px auto 80px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Toggle Wrapper */
+    .toggle-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 120px;
+      height: 40px;
+      background-color: #E8EDF3;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .toggle.active {
+      background-color: #3E497A;
+    }
+
+    .toggle span {
+      font-size: 16px;
+      font-weight: bold;
+      color: #3E497A; /* Default inactive text color */
+      transition: color 0.3s ease-in-out;
+    }
+
+    .toggle span.active {
+      color: white; /* Active text color for better contrast */
+    }
+
+    .toggle span.inactive {
+      color: #A3A9C3; /* Inactive text color for visibility */
+    }
+
+    .toggle-circle {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: 50px;
+      height: 30px;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      transition: left 0.3s ease-in-out;
+    }
+
+    .toggle.active .toggle-circle {
+      left: 65px;
+    }
+
+    /* Day Navigation */
+    .day-navigation {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 10px 0;
+      margin-bottom: 20px;
+      scrollbar-width: none;
+    }
+
+    .day-card {
+      flex: 0 0 auto;
+      background-color: #E8EDF3;
+      color: #3E497A;
+      padding: 12px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .day-card.active {
+      background-color: #3E497A;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .day-card:hover {
+      background-color: #5967A7;
+      color: white;
+    }
+
+    /* Menu Display */
+    .menu {
+      background-color: #F9FBFE;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .menu:hover {
+      transform: scale(1.02);
+    }
+
+    .menu i {
+      font-size: 24px;
+      margin-right: 10px;
+      color: #3E497A;
+    }
+
+    .menu h4 {
+      font-size: 18px;
+      margin: 0 0 5px;
+      color: #3E497A;
+    }
+
+    .menu p {
+      margin: 0;
+      font-size: 16px;
+      color: #555;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #3E497A;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-item {
+      text-align: center;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    .nav-item.active {
+      color: #FFD700; /* Highlighted icon in gold */
+    }
+
+    .nav-item:hover {
+      color: #FFD700;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  Weekly Meal Planner
+</header>
+
+<div class="container">
+  <!-- Gender Toggle -->
+  <div class="toggle-wrapper">
+    <div class="toggle" id="gender-toggle" onclick="toggleGender()">
+      <span id="toggle-girls" class="active">Girls</span>
+      <span id="toggle-boys" class="inactive">Boys</span>
+      <div class="toggle-circle"></div>
+    </div>
+  </div>
+
+  <!-- Day Navigation -->
+  <div class="day-navigation" id="day-nav">
+    <div class="day-card active" onclick="selectDay(0)">Monday</div>
+    <div class="day-card" onclick="selectDay(1)">Tuesday</div>
+    <div class="day-card" onclick="selectDay(2)">Wednesday</div>
+    <div class="day-card" onclick="selectDay(3)">Thursday</div>
+    <div class="day-card" onclick="selectDay(4)">Friday</div>
+    <div class="day-card" onclick="selectDay(5)">Saturday</div>
+    <div class="day-card" onclick="selectDay(6)">Sunday</div>
+  </div>
+
+  <!-- Menu Display -->
+  <div id="menu-display">
+    <!-- Menu items will be dynamically rendered here -->
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="navigate('home')">
+    <i class="fas fa-home"></i>
+    <p>Home</p>
+  </div>
+  <div class="nav-item" onclick="navigate('menu')">
+    <i class="fas fa-utensils"></i>
+    <p>Menu</p>
+  </div>
+  <div class="nav-item" onclick="navigate('settings')">
+    <i class="fas fa-cog"></i>
+    <p>Settings</p>
+  </div>
+</div>
+
+<script>
+  const menuData = {
+    girls: [
+      { breakfast: "Paratha, Curd, Tea", lunch: "Dal, Rice, Salad", dinner: "Paneer, Chapati, Soup" },
+      { breakfast: "Poha, Juice", lunch: "Rajma, Rice, Pickle", dinner: "Veg Curry, Roti" },
+      { breakfast: "Idli, Sambhar", lunch: "Chole, Bhature", dinner: "Dosa, Chutney" },
+    ],
+    boys: [
+      { breakfast: "Toast, Tea", lunch: "Chicken Curry, Rice", dinner: "Mutton, Roti" },
+      { breakfast: "Omelette, Juice", lunch: "Fish Curry, Rice", dinner: "Veg Biryani, Salad" },
+      { breakfast: "Upma, Coffee", lunch: "Chole, Bhature", dinner: "Paneer Curry, Naan" },
+    ],
+  };
+
+  let selectedGender = "girls";
+  let selectedDay = 0;
+
+  function renderMenu() {
+    const menuDisplay = document.getElementById("menu-display");
+    menuDisplay.innerHTML = "";
+    const menu = menuData[selectedGender][selectedDay];
+
+    for (const meal in menu) {
+      const menuItem = document.createElement("div");
+      menuItem.className = "menu";
+      menuItem.innerHTML = `
+        <i class="fas ${meal === 'breakfast' ? 'fa-coffee' : meal === 'lunch' ? 'fa-utensils' : 'fa-moon'}"></i>
+        <div>
+          <h4>${meal.charAt(0).toUpperCase() + meal.slice(1)}</h4>
+          <p>${menu[meal]}</p>
+        </div>
+      `;
+      menuDisplay.appendChild(menuItem);
+    }
+  }
+
+  function toggleGender() {
+    const toggle = document.getElementById("gender-toggle");
+    const girlsSpan = document.getElementById("toggle-girls");
+    const boysSpan = document.getElementById("toggle-boys");
+
+    toggle.classList.toggle("active");
+    girlsSpan.classList.toggle("active");
+    girlsSpan.classList.toggle("inactive");
+    boysSpan.classList.toggle("active");
+    boysSpan.classList.toggle("inactive");
+
+    selectedGender = toggle.classList.contains("active") ? "boys" : "girls";
+    renderMenu();
+  }
+
+  function selectDay(dayIndex) {
+    selectedDay = dayIndex;
+    document.querySelectorAll(".day-card").forEach((card) => card.classList.remove("active"));
+    document.querySelector(`.day-card:nth-child(${dayIndex + 1})`).classList.add("active");
+    renderMenu();
+  }
+
+  function navigate(section) {
+    document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
+    document.querySelector(`.nav-item:has(.fa-${section === 'home' ? 'home' : section === 'menu' ? 'utensils' : 'cog'})`).classList.add("active");
+    alert(`Navigating to ${section}`);
+  }
+
+  renderMenu();
+</script>
+
+</body>
+</html>
