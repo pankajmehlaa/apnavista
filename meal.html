@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CU Meal</title>
+  <title>Modern Weekly Menu App</title>
   <!-- Font Awesome Icons -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <style>
@@ -238,7 +238,7 @@
 <body>
 
 <header>
-  CU MEAL
+  Weekly Meal Planner
   <div id="digital-clock"></div>
 </header>
 
@@ -246,9 +246,9 @@
   <!-- Toggle and Dropdown Section -->
   <div class="toggle-dropdown-wrapper">
     <div class="toggle-wrapper">
-      <div class="toggle active" id="gender-toggle" onclick="toggleGender()">
-        <span id="toggle-girls" class="active">Boys</span>
-        <span id="toggle-boys" class="inactive">Girls</span>
+      <div class="toggle" id="gender-toggle" onclick="toggleGender()">
+        <span id="toggle-girls" class="active">Girls</span>
+        <span id="toggle-boys" class="inactive">Boys</span>
         <div class="toggle-circle"></div>
       </div>
     </div>
@@ -289,8 +289,8 @@
 
 <script>
   const hostels = {
-    girls: ["Sukhna", "LC", "Shivalik"],
-    boys: ["Zakir", "NC Towers"],
+    girls: ["Girls Hostel 1", "Girls Hostel 2", "Girls Hostel 3"],
+    boys: ["Boys Hostel A", "Boys Hostel B", "Boys Hostel C"],
   };
 
   const menuData = {
@@ -306,9 +306,16 @@
     ],
   };
 
-  let selectedGender = "boys";
+  let selectedGender = "girls";
   let selectedHostel = hostels[selectedGender][0];
   let selectedDayIndex = 0;
+
+  const mealIcons = {
+    breakfast: "fa-sun", // Represents morning (sunrise)
+    lunch: "fa-cloud-sun", // Represents noon
+    snacks: "fa-coffee", // Represents evening tea
+    dinner: "fa-moon", // Represents night (moon)
+  };
 
   function populateHostelDropdown() {
     const dropdown = document.getElementById("hostel-dropdown");
@@ -320,6 +327,30 @@
       dropdown.appendChild(option);
     });
     selectedHostel = hostels[selectedGender][0]; // Set default hostel
+  }
+
+  function generateDayCards() {
+    const today = new Date();
+    const daysToShow = 7; // Display 7 days (current + next 6)
+    const dayNav = document.getElementById("day-nav");
+    dayNav.innerHTML = ""; // Clear existing cards
+
+    for (let i = 0; i < daysToShow; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+      const monthDay = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+      const dayCard = document.createElement("div");
+      dayCard.className = `day-card ${i === 0 ? "active" : ""}`;
+      dayCard.setAttribute("data-index", i);
+      dayCard.onclick = () => selectDay(i);
+      dayCard.innerHTML = `
+        <div>${dayName}</div>
+        <div class="date">${monthDay}</div>
+      `;
+      dayNav.appendChild(dayCard);
+    }
   }
 
   function toggleGender() {
@@ -341,12 +372,15 @@
   function updateHostel() {
     const dropdown = document.getElementById("hostel-dropdown");
     selectedHostel = dropdown.value;
-    
+    alert(`Selected Hostel: ${selectedHostel}`);
   }
 
-  function initializeApp() {
-    populateHostelDropdown(); // Initialize dropdown
-    renderMenu(); // Render initial menu
+  function selectDay(index) {
+    selectedDayIndex = index;
+    document.querySelectorAll(".day-card").forEach((card) => card.classList.remove("active"));
+    const selectedCard = document.querySelector(`.day-card[data-index="${index}"]`);
+    selectedCard.classList.add("active");
+    renderMenu();
   }
 
   function renderMenu() {
@@ -358,7 +392,7 @@
       const mealDiv = document.createElement("div");
       mealDiv.className = "menu";
       mealDiv.innerHTML = `
-        <i class="fas fa-${meal === "breakfast" ? "coffee" : meal === "lunch" ? "utensils" : meal === "dinner" ? "moon" : "cookie-bite"}"></i>
+        <i class="fas ${mealIcons[meal]}"></i>
         <div>
           <h4>${meal.charAt(0).toUpperCase() + meal.slice(1)}</h4>
           <p>${menu[meal]}</p>
@@ -366,6 +400,21 @@
       `;
       menuDisplay.appendChild(mealDiv);
     }
+  }
+
+  function startClock() {
+    const clock = document.getElementById("digital-clock");
+    setInterval(() => {
+      const now = new Date();
+      clock.textContent = now.toLocaleTimeString();
+    }, 1000);
+  }
+
+  function initializeApp() {
+    populateHostelDropdown(); // Initialize dropdown
+    generateDayCards(); // Generate day cards
+    renderMenu(); // Render initial menu
+    startClock(); // Start the clock
   }
 
   initializeApp();
