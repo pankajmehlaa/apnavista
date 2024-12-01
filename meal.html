@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Modern Weekly Menu App</title>
+  <!-- Font Awesome Icons -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <style>
     /* General Styles */
@@ -20,10 +21,22 @@
       background-color: #3E497A;
       color: white;
       text-align: center;
-      padding: 20px;
+      padding: 10px 20px;
       font-size: 22px;
       font-weight: bold;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    /* Digital Clock */
+    #digital-clock {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      font-size: 14px;
+      font-weight: bold;
+      color: #FFD700;
     }
 
     .container {
@@ -62,16 +75,16 @@
     .toggle span {
       font-size: 16px;
       font-weight: bold;
-      color: #3E497A; /* Default inactive text color */
+      color: #3E497A;
       transition: color 0.3s ease-in-out;
     }
 
     .toggle span.active {
-      color: white; /* Active text color for better contrast */
+      color: white;
     }
 
     .toggle span.inactive {
-      color: #A3A9C3; /* Inactive text color for visibility */
+      color: #A3A9C3;
     }
 
     .toggle-circle {
@@ -104,12 +117,13 @@
       flex: 0 0 auto;
       background-color: #E8EDF3;
       color: #3E497A;
-      padding: 12px 15px;
+      padding: 10px;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 14px;
       text-align: center;
       cursor: pointer;
       transition: background-color 0.3s, transform 0.2s;
+      min-width: 80px;
     }
 
     .day-card.active {
@@ -121,6 +135,16 @@
     .day-card:hover {
       background-color: #5967A7;
       color: white;
+    }
+
+    .day-card .date {
+      font-size: 12px;
+      color: inherit;
+    }
+
+    /* Centering the current day */
+    .day-navigation::-webkit-scrollbar {
+      display: none;
     }
 
     /* Menu Display */
@@ -183,7 +207,7 @@
     }
 
     .nav-item.active {
-      color: #FFD700; /* Highlighted icon in gold */
+      color: #FFD700;
     }
 
     .nav-item:hover {
@@ -195,6 +219,7 @@
 
 <header>
   Weekly Meal Planner
+  <div id="digital-clock"></div>
 </header>
 
 <div class="container">
@@ -209,13 +234,7 @@
 
   <!-- Day Navigation -->
   <div class="day-navigation" id="day-nav">
-    <div class="day-card active" onclick="selectDay(0)">Monday</div>
-    <div class="day-card" onclick="selectDay(1)">Tuesday</div>
-    <div class="day-card" onclick="selectDay(2)">Wednesday</div>
-    <div class="day-card" onclick="selectDay(3)">Thursday</div>
-    <div class="day-card" onclick="selectDay(4)">Friday</div>
-    <div class="day-card" onclick="selectDay(5)">Saturday</div>
-    <div class="day-card" onclick="selectDay(6)">Sunday</div>
+    <!-- Day cards will be dynamically generated -->
   </div>
 
   <!-- Menu Display -->
@@ -237,6 +256,10 @@
     <i class="fas fa-cog"></i>
     <p>Settings</p>
   </div>
+  <div class="nav-item" onclick="navigate('contact')">
+    <i class="fas fa-phone"></i>
+    <p>Contact</p>
+  </div>
 </div>
 
 <script>
@@ -245,22 +268,54 @@
       { breakfast: "Paratha, Curd, Tea", lunch: "Dal, Rice, Salad", dinner: "Paneer, Chapati, Soup" },
       { breakfast: "Poha, Juice", lunch: "Rajma, Rice, Pickle", dinner: "Veg Curry, Roti" },
       { breakfast: "Idli, Sambhar", lunch: "Chole, Bhature", dinner: "Dosa, Chutney" },
+      // Add data for remaining days...
     ],
     boys: [
       { breakfast: "Toast, Tea", lunch: "Chicken Curry, Rice", dinner: "Mutton, Roti" },
       { breakfast: "Omelette, Juice", lunch: "Fish Curry, Rice", dinner: "Veg Biryani, Salad" },
       { breakfast: "Upma, Coffee", lunch: "Chole, Bhature", dinner: "Paneer Curry, Naan" },
+      // Add data for remaining days...
     ],
   };
 
   let selectedGender = "girls";
-  let selectedDay = 0;
+  let selectedDayIndex = 0;
+  const dayNav = document.getElementById("day-nav");
+
+  function generateDayCards() {
+    const today = new Date();
+    const daysToShow = 9; // Yesterday to next week
+    dayNav.innerHTML = "";
+
+    for (let i = -1; i <= 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const monthDay = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      const dayCard = document.createElement("div");
+      dayCard.className = "day-card";
+      dayCard.setAttribute("data-index", i + 1);
+      dayCard.onclick = () => selectDay(i + 1);
+      dayCard.innerHTML = `
+        <div>${dayName}</div>
+        <div class="date">${monthDay}</div>
+      `;
+      dayNav.appendChild(dayCard);
+    }
+  }
+
+  function centerCurrentDay() {
+    const currentDayCard = document.querySelector(`.day-card[data-index="${selectedDayIndex}"]`);
+    currentDayCard.classList.add("active");
+    currentDayCard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+  }
 
   function renderMenu() {
     const menuDisplay = document.getElementById("menu-display");
     menuDisplay.innerHTML = "";
-    const menu = menuData[selectedGender][selectedDay];
 
+    const menu = menuData[selectedGender][selectedDayIndex % 7]; // Cycle through week data
     for (const meal in menu) {
       const menuItem = document.createElement("div");
       menuItem.className = "menu";
@@ -273,6 +328,14 @@
       `;
       menuDisplay.appendChild(menuItem);
     }
+  }
+
+  function selectDay(index) {
+    selectedDayIndex = index;
+    document.querySelectorAll(".day-card").forEach(card => card.classList.remove("active"));
+    const selectedCard = document.querySelector(`.day-card[data-index="${index}"]`);
+    selectedCard.classList.add("active");
+    renderMenu();
   }
 
   function toggleGender() {
@@ -290,20 +353,33 @@
     renderMenu();
   }
 
-  function selectDay(dayIndex) {
-    selectedDay = dayIndex;
-    document.querySelectorAll(".day-card").forEach((card) => card.classList.remove("active"));
-    document.querySelector(`.day-card:nth-child(${dayIndex + 1})`).classList.add("active");
+  function startClock() {
+    const clock = document.getElementById("digital-clock");
+    setInterval(() => {
+      const now = new Date();
+      clock.textContent = now.toLocaleTimeString();
+    }, 1000);
+  }
+
+  function initializeApp() {
+    generateDayCards();
+
+    // Set default selected day to current day
+    const today = new Date();
+    selectedDayIndex = 1; // 0 is yesterday, so 1 is today
+    centerCurrentDay();
+
     renderMenu();
+    startClock();
   }
 
   function navigate(section) {
-    document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
-    document.querySelector(`.nav-item:has(.fa-${section === 'home' ? 'home' : section === 'menu' ? 'utensils' : 'cog'})`).classList.add("active");
+    document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+    document.querySelector(`.nav-item i.fa-${section === 'home' ? 'home' : section === 'menu' ? 'utensils' : section === 'settings' ? 'cog' : 'phone'}`).parentNode.classList.add("active");
     alert(`Navigating to ${section}`);
   }
 
-  renderMenu();
+  initializeApp();
 </script>
 
 </body>
