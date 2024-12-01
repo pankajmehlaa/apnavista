@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guard App - Apna Vista</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f9fafc;
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(90deg, #4a90e2, #7ecbff);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 15px 15px;
+        }
+
+        header h1 {
+            font-size: 20px;
+            margin: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header h1 i {
+            font-size: 26px;
+        }
+
+        header div {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            padding: 15px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .profile-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .profile-card .info h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .profile-card .info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .profile-card .info p.status {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        /* OTP Container */
+        .otp-container {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .otp-container h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .otp-display {
+            background: #f3f4f6;
+            border: 2px dashed #4a90e2;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .keypad button {
+            background: #eef2f5;
+            color: #333;
+            border: none;
+            font-size: 18px;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-weight: 600;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .keypad button:hover {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .keypad .qr-btn {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .keypad .qr-btn i {
+            font-size: 24px;
+            color: #4a90e2;
+        }
+
+        .keypad .clear-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Visitor Actions */
+        .visitor-actions {
+            margin-bottom: 20px;
+        }
+
+        .visitor-actions h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .visitor-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .visitor-option {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .visitor-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .visitor-option i {
+            font-size: 28px;
+            color: #4a90e2;
+            margin-bottom: 8px;
+        }
+
+        .visitor-option h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Bottom Navigation */
+        .menu {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-evenly;
+            padding: 10px 0;
+        }
+
+        .menu button {
+            background: none;
+            border: none;
+            font-size: 12px;
+            font-weight: 500;
+            color: #555;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .menu button.active {
+            color: #4a90e2;
+        }
+
+        .menu button:hover {
+            color: #4a90e2;
+            transform: translateY(-3px);
+        }
+
+        .menu button i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 18px;
+            }
+
+            .profile-card img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .profile-card .info h3 {
+                font-size: 16px;
+            }
+
+            .otp-container h3 {
+                font-size: 14px;
+            }
+
+            .visitor-option i {
+                font-size: 24px;
+            }
+
+            .menu button {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-shield-alt"></i>Apna Vista - Guard App</h1>
+        <div id="current-time">00:00</div>
+    </header>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <div class="profile-card">
+            <img src="https://via.placeholder.com/60" alt="Guard">
+            <div class="info">
+                <h3>Albert Flores</h3>
+                <p>Gate A | Apna Vista</p>
+                <p class="status">On Duty</p>
+            </div>
+        </div>
+        <div class="otp-container">
+            <h3>Enter Visitor OTP or Scan QR</h3>
+            <div class="otp-display" id="otp-display">---</div>
+            <div class="keypad">
+                <button onclick="addDigit(1)">1</button>
+                <button onclick="addDigit(2)">2</button>
+                <button onclick="addDigit(3)">3</button>
+                <button onclick="addDigit(4)">4</button>
+                <button onclick="addDigit(5)">5</button>
+                <button onclick="addDigit(6)">6</button>
+                <button onclick="addDigit(7)">7</button>
+                <button onclick="addDigit(8)">8</button>
+                <button onclick="addDigit(9)">9</button>
+                <button class="clear-btn" onclick="clearOTP()">Clear</button>
+                <button onclick="addDigit(0)">0</button>
+                <button class="qr-btn" onclick="scanQR()"><i class="fas fa-qrcode"></i></button>
+            </div>
+        </div>
+        <div class="visitor-actions">
+            <h3>Add New Visitor</h3>
+            <div class="visitor-options">
+                <div class="visitor-option" onclick="alert('Guest Entry Clicked')">
+                    <i class="fas fa-user"></i>
+                    <h4>Guest Entry</h4>
+                </div>
+                <div class="visitor-option" onclick="alert('Cab Entry Clicked')">
+                    <i class="fas fa-taxi"></i>
+                    <h4>Cab Entry</h4>
+                </div>
+                <div class="visitor-option" onclick="alert('Delivery Entry Clicked')">
+                    <i class="fas fa-box"></i>
+                    <h4>Delivery Entry</h4>
+                </div>
+                <div class="visitor-option" onclick="alert('Service Entry Clicked')">
+                    <i class="fas fa-tools"></i>
+                    <h4>Service Entry</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="menu">
+        <button onclick="switchPage('home')" class="active"><i class="fas fa-home"></i> Home</button>
+        <button onclick="switchPage('in-out')"><i class="fas fa-arrows-alt"></i> In-Out</button>
+        <button onclick="switchPage('messages')"><i class="fas fa-envelope"></i> Messages</button>
+        <button onclick="switchPage('settings')"><i class="fas fa-cog"></i> Settings</button>
+    </div>
+
+    <script>
+        let otp = '';
+
+        function addDigit(digit) {
+            if (otp.length < 6) {
+                otp += digit;
+                document.getElementById('otp-display').innerText = otp;
+            }
+        }
+
+        function clearOTP() {
+            otp = '';
+            document.getElementById('otp-display').innerText = '---';
+        }
+
+        function scanQR() {
+            alert('QR Scanner Simulated!');
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.menu button').forEach(button => button.classList.remove('active'));
+            document.querySelector(`.menu button[onclick="switchPage('${pageId}')"]`).classList.add('active');
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('current-time').innerText = `${hours}:${minutes}`;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
