@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modern Weekly Menu App</title>
+  <title>CU Meal</title>
   <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+ 
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
   <style>
     /* General Styles */
     body {
@@ -158,37 +161,45 @@
 
     /* Menu Display */
     .menu {
-      background-color: #F9FBFE;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      transition: transform 0.3s ease-in-out;
-    }
+  display: flex;
+  align-items: center;
+  background-color: #F9FBFE;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px;
+  transition: transform 0.3s ease-in-out;
+}
 
-    .menu:hover {
-      transform: scale(1.02);
-    }
+.menu:hover {
+  transform: scale(1.02);
+}
 
-    .menu i {
-      font-size: 28px;
-      margin-right: 10px;
-      color: #3E497A;
-    }
+.menu-icon {
+  width: 30%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    .menu h4 {
-      font-size: 18px;
-      margin: 0 0 5px;
-      color: #3E497A;
-    }
+.menu-content {
+  width: 70%;
+}
 
-    .menu p {
-      margin: 0;
-      font-size: 16px;
-      color: #555;
-    }
+.menu-content h4 {
+  font-size: 18px;
+  margin: 0 0 5px;
+  color: #3E497A;
+}
+
+.menu-content p {
+  margin: 0;
+  font-size: 16px;
+  color: #555;
+}
+
+
 
     /* Bottom Navigation */
     .bottom-nav {
@@ -278,18 +289,19 @@
 
 <script>
   const hostels = {
-    girls: ["Sukhna", "LC", "Shivalik"],
+    girls: ["Sukhna", "Shivalik", "LC"],
     boys: ["Zakir", "NC Towers"],
   };
 
   const menuData = {
     girls: [
-      { breakfast: "Paratha, Curd, Tea", lunch: "Dal, Rice, Salad", dinner: "Paneer, Chapati, Soup", snacks: "Samosa, Tea" },
-      { breakfast: "Poha, Juice", lunch: "Rajma, Rice, Pickle", dinner: "Veg Curry, Roti", snacks: "Biscuits, Coffee" },
+      { breakfast: "Paratha, Curd, Tea", lunch: "Dal, Rice, Salad",snacks: "Samosa, Tea" , dinner: "Paneer, Chapati, Soup"},
+      { breakfast: "Poha, Juice", lunch: "Rajma, Rice, Pickle", snacks: "Biscuits, Coffee", dinner: "Veg Curry, Roti" },
     ],
     boys: [
-      { breakfast: "Toast, Tea", lunch: "Chicken Curry, Rice", dinner: "Mutton, Roti", snacks: "Chips, Cold Drink" },
-      { breakfast: "Omelette, Juice", lunch: "Fish Curry, Rice", dinner: "Veg Biryani, Salad", snacks: "Cookies" },
+      { breakfast: "Toast, Tea", lunch: "Chicken Curry, Rice", snacks: "Chips, Cold Drink", dinner: "Mutton, Roti"},
+      { breakfast: "Omelette, Juice", lunch: "Fish Curry, Rice", snacks: "Cookies", dinner: "Veg Biryani, Salad"},
+      { breakfast: "Juice", lunch: "Fish Curry, Rice", snacks: "Cookies", dinner: "Veg Biryani, Salad"},
     ],
   };
 
@@ -356,13 +368,35 @@
     for (const meal in menu) {
       const mealDiv = document.createElement("div");
       mealDiv.className = "menu";
-      mealDiv.innerHTML = `
-        <i class="fas fa-${meal === "breakfast" ? "sun" : meal === "lunch" ? "utensils" : meal === "snacks" ? "coffee" : "moon"}"></i>
-        <div>
-          <h4>${meal.charAt(0).toUpperCase() + meal.slice(1)}</h4>
-          <p>${menu[meal]}</p>
-        </div>
-      `;
+     mealDiv.innerHTML = `
+  <div class="menu-icon">
+    <span class="material-icons" style="color: ${
+      meal === "breakfast"
+        ? "#FFA726" // Orange for breakfast
+        : meal === "lunch"
+        ? "#66BB6A" // Green for lunch
+        : meal === "snacks"
+        ? "#42A5F5" // Blue for snacks
+        : "#AB47BC" // Purple for dinner
+    }; font-size: 50px;">
+      ${
+        meal === "breakfast"
+          ? "wb_sunny" // Sun icon for breakfast
+          : meal === "lunch"
+          ? "lunch_dining" // Lunch plate for lunch
+          : meal === "snacks"
+          ? "local_cafe" // Coffee for snacks
+          : "nights_stay" // Moon for dinner
+      }
+    </span>
+  </div>
+  <div class="menu-content">
+    <h4>${meal.charAt(0).toUpperCase() + meal.slice(1)}</h4>
+    <p>${menu[meal]}</p>
+  </div>
+`;
+
+
       menuDisplay.appendChild(mealDiv);
     }
   }
