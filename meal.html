@@ -73,23 +73,11 @@
       transition: background-color 0.3s ease-in-out;
     }
 
-    .toggle.active {
-      background-color: #3E497A;
-    }
-
     .toggle span {
       font-size: 16px;
       font-weight: bold;
-      color: #3E497A;
-      transition: color 0.3s ease-in-out;
-    }
-
-    .toggle span.active {
       color: white;
-    }
-
-    .toggle span.inactive {
-      color: #ffffff;
+      transition: color 0.3s ease-in-out;
     }
 
     .toggle-circle {
@@ -132,6 +120,7 @@
       padding: 10px 0;
       margin-bottom: 20px;
       scrollbar-width: none;
+      scroll-behavior: smooth; /* Enables smooth auto-scrolling */
     }
 
     .day-card {
@@ -150,7 +139,7 @@
     .day-card.active {
       background-color: #3E497A;
       color: white;
-      transform: scale(1.1);
+      transform: scale(1.1); /* Enlarges the active card slightly */
     }
 
     .day-card:hover {
@@ -164,7 +153,7 @@
     }
 
     .day-navigation::-webkit-scrollbar {
-      display: none;
+      display: none; /* Hides scrollbar for a cleaner look */
     }
 
     /* Menu Display */
@@ -238,21 +227,21 @@
 <body>
 
 <header>
-  Weekly Meal Planner
-  <div id="digital-clock"></div>
+  CU Meal
+ 
 </header>
 
 <div class="container">
   <!-- Toggle and Dropdown Section -->
   <div class="toggle-dropdown-wrapper">
     <div class="toggle-wrapper">
-      <div class="toggle" id="gender-toggle" onclick="toggleGender()">
-        <span id="toggle-girls" class="active">Girls</span>
-        <span id="toggle-boys" class="inactive">Boys</span>
+      <div class="toggle active" id="gender-toggle" onclick="toggleGender()">
+        <span id="toggle-boys">Boys</span>
+        <span id="toggle-girls">Girls</span>
         <div class="toggle-circle"></div>
       </div>
     </div>
-    <select class="dropdown" id="hostel-dropdown" onchange="updateHostel()">
+    <select class="dropdown" id="hostel-dropdown">
       <!-- Hostel options will be dynamically populated -->
     </select>
   </div>
@@ -297,89 +286,65 @@
     girls: [
       { breakfast: "Paratha, Curd, Tea", lunch: "Dal, Rice, Salad", dinner: "Paneer, Chapati, Soup", snacks: "Samosa, Tea" },
       { breakfast: "Poha, Juice", lunch: "Rajma, Rice, Pickle", dinner: "Veg Curry, Roti", snacks: "Biscuits, Coffee" },
-      { breakfast: "Idli, Sambhar", lunch: "Chole, Bhature", dinner: "Dosa, Chutney", snacks: "Fruit Salad" },
     ],
     boys: [
       { breakfast: "Toast, Tea", lunch: "Chicken Curry, Rice", dinner: "Mutton, Roti", snacks: "Chips, Cold Drink" },
       { breakfast: "Omelette, Juice", lunch: "Fish Curry, Rice", dinner: "Veg Biryani, Salad", snacks: "Cookies" },
-      { breakfast: "Upma, Coffee", lunch: "Chole, Bhature", dinner: "Paneer Curry, Naan", snacks: "Nachos" },
     ],
   };
 
-  let selectedGender = "girls";
-  let selectedHostel = hostels[selectedGender][0];
+  let selectedGender = "boys";
   let selectedDayIndex = 0;
 
-  const mealIcons = {
-    breakfast: "fa-sun", // Represents morning (sunrise)
-    lunch: "fa-cloud-sun", // Represents noon
-    snacks: "fa-coffee", // Represents evening tea
-    dinner: "fa-moon", // Represents night (moon)
-  };
-
-  function populateHostelDropdown() {
-    const dropdown = document.getElementById("hostel-dropdown");
-    dropdown.innerHTML = ""; // Clear existing options
-    hostels[selectedGender].forEach((hostel) => {
-      const option = document.createElement("option");
-      option.value = hostel;
-      option.textContent = hostel;
-      dropdown.appendChild(option);
-    });
-    selectedHostel = hostels[selectedGender][0]; // Set default hostel
-  }
-
   function generateDayCards() {
-    const today = new Date();
-    const daysToShow = 7; // Display 7 days (current + next 6)
-    const dayNav = document.getElementById("day-nav");
-    dayNav.innerHTML = ""; // Clear existing cards
+  const dayNav = document.getElementById("day-nav");
+  const days = 8; // 1 previous day + 7 future days
+  const today = new Date();
 
-    for (let i = 0; i < daysToShow; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-      const monthDay = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  dayNav.innerHTML = ""; // Clear existing day cards
 
-      const dayCard = document.createElement("div");
-      dayCard.className = `day-card ${i === 0 ? "active" : ""}`;
-      dayCard.setAttribute("data-index", i);
-      dayCard.onclick = () => selectDay(i);
-      dayCard.innerHTML = `
-        <div>${dayName}</div>
-        <div class="date">${monthDay}</div>
-      `;
-      dayNav.appendChild(dayCard);
+  for (let i = -1; i < days - 1; i++) { // Start at -1 for the previous day
+    const date = new Date(today);
+    date.setDate(today.getDate() + i); // Adjust the date by 'i' days
+
+    const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+    const monthDay = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+    const dayCard = document.createElement("div");
+    dayCard.className = "day-card";
+    dayCard.setAttribute("data-index", i); // Use 'i' as the index
+    dayCard.onclick = () => selectDay(i);
+
+    dayCard.innerHTML = `
+      <div>${dayName}</div>
+      <div class="date">${monthDay}</div>
+    `;
+
+    dayNav.appendChild(dayCard);
+
+    // Set the current day as active by default
+    if (i === 0) {
+      dayCard.classList.add("active");
     }
   }
 
-  function toggleGender() {
-    const toggle = document.getElementById("gender-toggle");
-    const girlsSpan = document.getElementById("toggle-girls");
-    const boysSpan = document.getElementById("toggle-boys");
+  centerCurrentDay(0); // Center the current day
+}
 
-    toggle.classList.toggle("active");
-    girlsSpan.classList.toggle("active");
-    girlsSpan.classList.toggle("inactive");
-    boysSpan.classList.toggle("active");
-    boysSpan.classList.toggle("inactive");
 
-    selectedGender = toggle.classList.contains("active") ? "boys" : "girls";
-    populateHostelDropdown(); // Update hostel dropdown
-    renderMenu();
-  }
+  function centerCurrentDay(dayIndex) {
+    const dayCards = document.querySelectorAll(".day-card");
+    dayCards.forEach((card) => card.classList.remove("active"));
 
-  function updateHostel() {
-    const dropdown = document.getElementById("hostel-dropdown");
-    selectedHostel = dropdown.value;
-    alert(`Selected Hostel: ${selectedHostel}`);
-  }
-
-  function selectDay(index) {
-    selectedDayIndex = index;
-    document.querySelectorAll(".day-card").forEach((card) => card.classList.remove("active"));
-    const selectedCard = document.querySelector(`.day-card[data-index="${index}"]`);
+    const selectedCard = document.querySelector(`.day-card[data-index="${dayIndex}"]`);
     selectedCard.classList.add("active");
+
+    selectedCard.scrollIntoView({ behavior: "smooth", inline: "center" });
+  }
+
+  function selectDay(dayIndex) {
+    selectedDayIndex = dayIndex;
+    centerCurrentDay(dayIndex);
     renderMenu();
   }
 
@@ -392,7 +357,7 @@
       const mealDiv = document.createElement("div");
       mealDiv.className = "menu";
       mealDiv.innerHTML = `
-        <i class="fas ${mealIcons[meal]}"></i>
+        <i class="fas fa-${meal === "breakfast" ? "sun" : meal === "lunch" ? "utensils" : meal === "snacks" ? "coffee" : "moon"}"></i>
         <div>
           <h4>${meal.charAt(0).toUpperCase() + meal.slice(1)}</h4>
           <p>${menu[meal]}</p>
@@ -402,19 +367,30 @@
     }
   }
 
-  function startClock() {
-    const clock = document.getElementById("digital-clock");
-    setInterval(() => {
-      const now = new Date();
-      clock.textContent = now.toLocaleTimeString();
-    }, 1000);
+  function populateHostelDropdown() {
+    const dropdown = document.getElementById("hostel-dropdown");
+    dropdown.innerHTML = "";
+
+    hostels[selectedGender].forEach((hostel) => {
+      const option = document.createElement("option");
+      option.value = hostel;
+      option.textContent = hostel;
+      dropdown.appendChild(option);
+    });
+  }
+
+  function toggleGender() {
+    const toggle = document.getElementById("gender-toggle");
+    toggle.classList.toggle("active");
+    selectedGender = toggle.classList.contains("active") ? "boys" : "girls";
+    populateHostelDropdown();
+    renderMenu();
   }
 
   function initializeApp() {
-    populateHostelDropdown(); // Initialize dropdown
-    generateDayCards(); // Generate day cards
-    renderMenu(); // Render initial menu
-    startClock(); // Start the clock
+    populateHostelDropdown();
+    generateDayCards();
+    renderMenu();
   }
 
   initializeApp();
