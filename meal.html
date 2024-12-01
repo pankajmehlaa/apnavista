@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Modern Weekly Menu App</title>
   <!-- Font Awesome Icons -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
@@ -48,18 +47,24 @@
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    /* Toggle Wrapper */
+    /* Toggle and Dropdown Section */
+    .toggle-dropdown-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
     .toggle-wrapper {
       display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
+      align-items: center;
     }
 
     .toggle {
       position: relative;
       width: 120px;
       height: 40px;
-      background-color: #E8EDF3;
+      background-color: #3E497A;
       border-radius: 20px;
       display: flex;
       align-items: center;
@@ -84,7 +89,7 @@
     }
 
     .toggle span.inactive {
-      color: #A3A9C3;
+      color: #ffffff;
     }
 
     .toggle-circle {
@@ -101,6 +106,22 @@
 
     .toggle.active .toggle-circle {
       left: 65px;
+    }
+
+    .dropdown {
+      margin-left: 10px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      color: #3E497A;
+      background-color: #F9FBFE;
+      cursor: pointer;
+    }
+
+    .dropdown:focus {
+      outline: none;
+      border-color: #3E497A;
     }
 
     /* Day Navigation */
@@ -142,7 +163,6 @@
       color: inherit;
     }
 
-    /* Centering the current day */
     .day-navigation::-webkit-scrollbar {
       display: none;
     }
@@ -164,7 +184,7 @@
     }
 
     .menu i {
-      font-size: 24px;
+      font-size: 28px;
       margin-right: 10px;
       color: #3E497A;
     }
@@ -218,18 +238,23 @@
 <body>
 
 <header>
-  Weekly Meal Planner
+  CU MEAL
   <div id="digital-clock"></div>
 </header>
 
 <div class="container">
-  <!-- Gender Toggle -->
-  <div class="toggle-wrapper">
-    <div class="toggle" id="gender-toggle" onclick="toggleGender()">
-      <span id="toggle-girls" class="active">Girls</span>
-      <span id="toggle-boys" class="inactive">Boys</span>
-      <div class="toggle-circle"></div>
+  <!-- Toggle and Dropdown Section -->
+  <div class="toggle-dropdown-wrapper">
+    <div class="toggle-wrapper">
+      <div class="toggle active" id="gender-toggle" onclick="toggleGender()">
+        <span id="toggle-girls" class="active">Boys</span>
+        <span id="toggle-boys" class="inactive">Girls</span>
+        <div class="toggle-circle"></div>
+      </div>
     </div>
+    <select class="dropdown" id="hostel-dropdown" onchange="updateHostel()">
+      <!-- Hostel options will be dynamically populated -->
+    </select>
   </div>
 
   <!-- Day Navigation -->
@@ -263,79 +288,38 @@
 </div>
 
 <script>
+  const hostels = {
+    girls: ["Sukhna", "LC", "Shivalik"],
+    boys: ["Zakir", "NC Towers"],
+  };
+
   const menuData = {
     girls: [
-      { breakfast: "Paratha, Curd, Tea", lunch: "Dal, Rice, Salad", dinner: "Paneer, Chapati, Soup" },
-      { breakfast: "Poha, Juice", lunch: "Rajma, Rice, Pickle", dinner: "Veg Curry, Roti" },
-      { breakfast: "Idli, Sambhar", lunch: "Chole, Bhature", dinner: "Dosa, Chutney" },
-      // Add data for remaining days...
+      { breakfast: "Paratha, Curd, Tea", lunch: "Dal, Rice, Salad", dinner: "Paneer, Chapati, Soup", snacks: "Samosa, Tea" },
+      { breakfast: "Poha, Juice", lunch: "Rajma, Rice, Pickle", dinner: "Veg Curry, Roti", snacks: "Biscuits, Coffee" },
+      { breakfast: "Idli, Sambhar", lunch: "Chole, Bhature", dinner: "Dosa, Chutney", snacks: "Fruit Salad" },
     ],
     boys: [
-      { breakfast: "Toast, Tea", lunch: "Chicken Curry, Rice", dinner: "Mutton, Roti" },
-      { breakfast: "Omelette, Juice", lunch: "Fish Curry, Rice", dinner: "Veg Biryani, Salad" },
-      { breakfast: "Upma, Coffee", lunch: "Chole, Bhature", dinner: "Paneer Curry, Naan" },
-      // Add data for remaining days...
+      { breakfast: "Toast, Tea", lunch: "Chicken Curry, Rice", dinner: "Mutton, Roti", snacks: "Chips, Cold Drink" },
+      { breakfast: "Omelette, Juice", lunch: "Fish Curry, Rice", dinner: "Veg Biryani, Salad", snacks: "Cookies" },
+      { breakfast: "Upma, Coffee", lunch: "Chole, Bhature", dinner: "Paneer Curry, Naan", snacks: "Nachos" },
     ],
   };
 
-  let selectedGender = "girls";
+  let selectedGender = "boys";
+  let selectedHostel = hostels[selectedGender][0];
   let selectedDayIndex = 0;
-  const dayNav = document.getElementById("day-nav");
 
-  function generateDayCards() {
-    const today = new Date();
-    const daysToShow = 9; // Yesterday to next week
-    dayNav.innerHTML = "";
-
-    for (let i = -1; i <= 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-      const monthDay = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-      const dayCard = document.createElement("div");
-      dayCard.className = "day-card";
-      dayCard.setAttribute("data-index", i + 1);
-      dayCard.onclick = () => selectDay(i + 1);
-      dayCard.innerHTML = `
-        <div>${dayName}</div>
-        <div class="date">${monthDay}</div>
-      `;
-      dayNav.appendChild(dayCard);
-    }
-  }
-
-  function centerCurrentDay() {
-    const currentDayCard = document.querySelector(`.day-card[data-index="${selectedDayIndex}"]`);
-    currentDayCard.classList.add("active");
-    currentDayCard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-  }
-
-  function renderMenu() {
-    const menuDisplay = document.getElementById("menu-display");
-    menuDisplay.innerHTML = "";
-
-    const menu = menuData[selectedGender][selectedDayIndex % 7]; // Cycle through week data
-    for (const meal in menu) {
-      const menuItem = document.createElement("div");
-      menuItem.className = "menu";
-      menuItem.innerHTML = `
-        <i class="fas ${meal === 'breakfast' ? 'fa-coffee' : meal === 'lunch' ? 'fa-utensils' : 'fa-moon'}"></i>
-        <div>
-          <h4>${meal.charAt(0).toUpperCase() + meal.slice(1)}</h4>
-          <p>${menu[meal]}</p>
-        </div>
-      `;
-      menuDisplay.appendChild(menuItem);
-    }
-  }
-
-  function selectDay(index) {
-    selectedDayIndex = index;
-    document.querySelectorAll(".day-card").forEach(card => card.classList.remove("active"));
-    const selectedCard = document.querySelector(`.day-card[data-index="${index}"]`);
-    selectedCard.classList.add("active");
-    renderMenu();
+  function populateHostelDropdown() {
+    const dropdown = document.getElementById("hostel-dropdown");
+    dropdown.innerHTML = ""; // Clear existing options
+    hostels[selectedGender].forEach((hostel) => {
+      const option = document.createElement("option");
+      option.value = hostel;
+      option.textContent = hostel;
+      dropdown.appendChild(option);
+    });
+    selectedHostel = hostels[selectedGender][0]; // Set default hostel
   }
 
   function toggleGender() {
@@ -350,33 +334,38 @@
     boysSpan.classList.toggle("inactive");
 
     selectedGender = toggle.classList.contains("active") ? "boys" : "girls";
+    populateHostelDropdown(); // Update hostel dropdown
     renderMenu();
   }
 
-  function startClock() {
-    const clock = document.getElementById("digital-clock");
-    setInterval(() => {
-      const now = new Date();
-      clock.textContent = now.toLocaleTimeString();
-    }, 1000);
+  function updateHostel() {
+    const dropdown = document.getElementById("hostel-dropdown");
+    selectedHostel = dropdown.value;
+    alert(`Selected Hostel: ${selectedHostel}`);
   }
 
   function initializeApp() {
-    generateDayCards();
-
-    // Set default selected day to current day
-    const today = new Date();
-    selectedDayIndex = 1; // 0 is yesterday, so 1 is today
-    centerCurrentDay();
-
-    renderMenu();
-    startClock();
+    populateHostelDropdown(); // Initialize dropdown
+    renderMenu(); // Render initial menu
   }
 
-  function navigate(section) {
-    document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
-    document.querySelector(`.nav-item i.fa-${section === 'home' ? 'home' : section === 'menu' ? 'utensils' : section === 'settings' ? 'cog' : 'phone'}`).parentNode.classList.add("active");
-    alert(`Navigating to ${section}`);
+  function renderMenu() {
+    const menuDisplay = document.getElementById("menu-display");
+    menuDisplay.innerHTML = ""; // Clear menu
+
+    const menu = menuData[selectedGender][selectedDayIndex % menuData[selectedGender].length];
+    for (const meal in menu) {
+      const mealDiv = document.createElement("div");
+      mealDiv.className = "menu";
+      mealDiv.innerHTML = `
+        <i class="fas fa-${meal === "breakfast" ? "coffee" : meal === "lunch" ? "utensils" : meal === "dinner" ? "moon" : "cookie-bite"}"></i>
+        <div>
+          <h4>${meal.charAt(0).toUpperCase() + meal.slice(1)}</h4>
+          <p>${menu[meal]}</p>
+        </div>
+      `;
+      menuDisplay.appendChild(mealDiv);
+    }
   }
 
   initializeApp();
